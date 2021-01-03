@@ -267,7 +267,7 @@ namespace ZootrDiscordBot
                 Settings["create_spoiler"] = true;
                 Settings["create_cosmetics_log"] = false;
                 // Create a temp settings file
-                string fileName = System.IO.Path.GetTempPath() + Guid.NewGuid().ToString();
+                string fileName = Path.GetDirectoryName(OoTDirectory) + "/" + Guid.NewGuid().ToString();
                 System.IO.File.WriteAllText(fileName, Settings.ToString());
                 // Generate a seed using our settings file
                 var GeneratedSeedResponse = RunPython("--settings " + fileName);
@@ -275,7 +275,6 @@ namespace ZootrDiscordBot
                 {
                     File.Delete(fileName);
                 }
-
                 // Find the channels set by the config files
                 ISocketMessageChannel FoundChannel = null;
                 ISocketMessageChannel SpoilerChannel = null;
@@ -291,10 +290,12 @@ namespace ZootrDiscordBot
                         SpoilerChannel = gchan as ISocketMessageChannel;
                     }
                 }
+
                 if (FoundChannel != null)
                 {
                     // Parse the spoiler log for related settings
-                    var SpoilerInfo = GetSpoilerInfo(System.IO.File.ReadAllText(Path.GetDirectoryName(GeneratedSeedResponse.Item4) + @"\" + GeneratedSeedResponse.Item3));
+                    var SpoilerInfo = GetSpoilerInfo(System.IO.File.ReadAllText(Path.GetDirectoryName(GeneratedSeedResponse.Item4) + @"/" + GeneratedSeedResponse.Item3));
+
                     string BuiltMessage = "";
                     // Create the message to send
                     BuiltMessage += "**Seed Posted by**: `" + message.Author + "`\n";
@@ -312,12 +313,12 @@ namespace ZootrDiscordBot
                     await sentmessage.AddReactionsAsync(new[] { new Emoji("👍"), new Emoji("👎") });
                     await message.Channel.SendMessageAsync("Seed info has been posted to #seed-info");
                     // Read in the spoiler log into memory so we don't store it on disk
-                    var SpoilerText = File.ReadAllText(Path.GetDirectoryName(GeneratedSeedResponse.Item4) + @"\" + GeneratedSeedResponse.Item3);
+                    var SpoilerText = File.ReadAllText(Path.GetDirectoryName(GeneratedSeedResponse.Item4) + @"/" + GeneratedSeedResponse.Item3);
                     _ = Task.Run(() => SendSpoilerLog(SpoilerText, GeneratedSeedResponse.Item3, SpoilerChannel));
                     // Cleanup the files
-                    if (File.Exists(Path.GetDirectoryName(GeneratedSeedResponse.Item4) + @"\" + GeneratedSeedResponse.Item3))
+                    if (File.Exists(Path.GetDirectoryName(GeneratedSeedResponse.Item4) + @"/" + GeneratedSeedResponse.Item3))
                     {
-                        File.Delete(Path.GetDirectoryName(GeneratedSeedResponse.Item4) + @"\" + GeneratedSeedResponse.Item3);
+                        File.Delete(Path.GetDirectoryName(GeneratedSeedResponse.Item4) + @"/" + GeneratedSeedResponse.Item3);
                     }
                     if (File.Exists(GeneratedSeedResponse.Item4))
                     {
@@ -342,7 +343,7 @@ namespace ZootrDiscordBot
         {
             // Wait 20 minutes then write the file to a temp file to send it off
             System.Threading.Thread.Sleep(TimeSpan.FromMinutes(20));
-            string fileName = System.IO.Path.GetTempPath() + LogName;
+            string fileName = LogName;
             System.IO.File.WriteAllText(fileName, SpoilerLog);
             await FoundChannel.SendFileAsync(fileName);
             // Cleanup
