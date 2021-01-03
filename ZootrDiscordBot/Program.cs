@@ -147,7 +147,7 @@ namespace ZootrDiscordBot
             await discordclient.LoginAsync(TokenType.Bot, TokenKey);
             await discordclient.StartAsync();
             await discordclient.SetGameAsync("ZOOTR", null, ActivityType.Playing);
-            // Create timer for adding and removing the runner role
+            // Create timer for adding and removing the racing role
             System.Timers.Timer timer = new System.Timers.Timer(TimeSpan.FromMinutes(1).TotalMilliseconds)
             {
                 AutoReset = true
@@ -161,24 +161,24 @@ namespace ZootrDiscordBot
             // Check all guilds we are in
             foreach (var guild in discordclient.Guilds)
             {
-                // Make sure we have the runner role
-                if (!guild.Roles.Where(x => x.Name.ToLower() == "runner").Any())
+                // Make sure we have the racing role
+                if (!guild.Roles.Where(x => x.Name.ToLower() == "racing").Any())
                 {
                     try
                     {
-                        // If the runner role does not exist, make it and the channels needed
-                        await guild.CreateRoleAsync("runner", null, null, false, null);
+                        // If the racing role does not exist, make it and the channels needed
+                        await guild.CreateRoleAsync("racing", null, null, false, null);
                         await guild.CreateTextChannelAsync(Channel);
                         await guild.CreateTextChannelAsync(SpoilChannel);
                         var chan = guild.Channels.FirstOrDefault(x => x.Name.ToLower() == SpoilChannel.ToLower());
-                        var roleInternal = guild.Roles.FirstOrDefault(x => x.Name.ToLower() == "runner");
+                        var roleInternal = guild.Roles.FirstOrDefault(x => x.Name.ToLower() == "racing");
                         await chan.AddPermissionOverwriteAsync(roleInternal, OverwritePermissions.DenyAll(chan));
                     }
                     catch { }
                 }
 
                 // Locate the role
-                var role = guild.Roles.FirstOrDefault(x => x.Name.ToLower() == "runner");
+                var role = guild.Roles.FirstOrDefault(x => x.Name.ToLower() == "racing");
                 List<SocketGuildUser> UsersInVoice = new List<SocketGuildUser>();
                 // Find all users in voice channels
                 foreach (var chan in guild.VoiceChannels)
