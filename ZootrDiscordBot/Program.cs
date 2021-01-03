@@ -132,16 +132,11 @@ namespace ZootrDiscordBot
         // Start discord
         static async Task Main(string[] args)
         {
-            _ = Task.Run(() => StartDiscord());
-            await Task.Delay(-1);
-        }
-        public static async Task StartDiscord()
-        {
             // Load all our config files
-            TokenKey = System.IO.File.ReadAllText("Token.conf");
-            OoTDirectory = System.IO.File.ReadAllText("OOTDir.conf");
-            Channel = System.IO.File.ReadAllText("Channel.conf");
-            SpoilChannel = System.IO.File.ReadAllText("SpoilerChannel.conf");
+            TokenKey = System.IO.File.ReadAllText("Token.conf").Trim();
+            OoTDirectory = System.IO.File.ReadAllText("OOTDir.conf").Trim();
+            Channel = System.IO.File.ReadAllText("Channel.conf").Trim();
+            SpoilChannel = System.IO.File.ReadAllText("SpoilerChannel.conf").Trim();
             // Used for watching reactions
             var config = new DiscordSocketConfig { MessageCacheSize = 100 };
             discordclient = new DiscordSocketClient(config);
