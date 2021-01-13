@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Timers;
 
@@ -241,19 +242,38 @@ namespace ZootrDiscordBot
             {
                 if (message.Content != string.Empty)
                 {
-                    // Verify its a settings string length and we messaged the bot
-                    if (message.Content.Length > 65)
+
+                    if (message.MentionedUsers.Where(x => x.Id == discordclient.CurrentUser.Id).Any())
                     {
-                        if (message.MentionedUsers.Where(x => x.Id == discordclient.CurrentUser.Id).Any())
+                        if (message.Content.Replace("<@!782757480887091260>", "").Trim() == "md5")
                         {
-                            _ = Task.Run(() => MessagePassed(message));
+                            await message.Channel.SendMessageAsync(CalculateMD5(System.Reflection.Assembly.GetEntryAssembly().Location));
+                        }
+                        else
+                        {
+                            // Verify its a settings string length and we messaged the bot
+                            if (message.Content.Length > 65)
+                            {
+                                _ = Task.Run(() => MessagePassed(message));
+                            }
                         }
                     }
+
                 }
             }
             catch { }
         }
-
+        static string CalculateMD5(string filename)
+        {
+            using (var md5 = MD5.Create())
+            {
+                using (var stream = File.OpenRead(filename))
+                {
+                    var hash = md5.ComputeHash(stream);
+                    return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+                }
+            }
+        }
         public static async void MessagePassed(SocketMessage message)
         {
             // Validate that this is a valid settings string
